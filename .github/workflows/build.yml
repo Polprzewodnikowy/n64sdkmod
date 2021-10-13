@@ -3,35 +3,32 @@ name: build
 on:
   release:
     types:
-      - created
+      - published
   workflow_dispatch:
 
-env:
-  IMAGE_NAME: polprzewodnikowy/n64sdkmod
-
 jobs:
-  build-and-push-image:
+  build:
     runs-on: ubuntu-20.04
 
     steps:
-      - name: Checkout repository
+      - name: checkout
         uses: actions/checkout@v2
         with:
           ref: master
 
-      - name: Extract metadata (tags, labels) for Docker
+      - name: get image metadata
         id: meta
         uses: docker/metadata-action@v3
         with:
-          images: ${{ env.IMAGE_NAME }}
+          images: polprzewodnikowy/n64sdkmod
 
-      - name: Log in to the Container registry
+      - name: log in to the repository
         uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push Docker image
+      - name: build and push image
         uses: docker/build-push-action@v2
         with:
           context: .
