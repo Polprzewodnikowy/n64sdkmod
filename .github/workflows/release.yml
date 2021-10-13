@@ -51,7 +51,5 @@ jobs:
         with:
           context: .
           push: true
-          tags:
-            - ${{ env.IMAGE }}:latest
-            - ${{ env.IMAGE }}:v${{ steps.date.outputs.date }}
+          tags: ${{ env.IMAGE }}:latest,${{ env.IMAGE }}:v${{ steps.date.outputs.date }}
           labels: ${{ steps.meta.outputs.labels }}
