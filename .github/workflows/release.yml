@@ -17,14 +17,21 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-      - name: get date
-        id: date
-        run: echo "::set-output name=date::$(date --utc +'%Y.%m.%d-%H%M%S')"
-
       - name: checkout
         uses: actions/checkout@v2
         with:
           ref: master
+
+      - name: get date
+        id: date
+        run: echo "::set-output name=date::$(date --utc +'%Y.%m.%d-%H%M%S')"
+
+      - name: get commit info
+        id: commit
+        shell: bash
+        run: |
+          echo "::set-output name=sha::$(git rev-parse HEAD)"
+          echo "::set-output name=short_sha::$(git rev-parse --short HEAD)"
 
       - name: create release
         uses: actions/create-release@v1
@@ -51,5 +58,5 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ env.IMAGE }}:latest,${{ env.IMAGE }}:${{ steps.date.outputs.date }}
+          tags: ${{ env.IMAGE }}:latest,${{ env.IMAGE }}:${{ steps.date.outputs.date }},${{ env.IMAGE }}:${{ steps.commit.sha }},${{ env.IMAGE }}:${{ steps.commit.short_sha }}
           labels: ${{ steps.meta.outputs.labels }}
