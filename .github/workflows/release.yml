@@ -22,20 +22,17 @@ jobs:
         with:
           ref: master
 
-      - name: get date
-        id: date
-        run: echo "::set-output name=date::$(date --utc +'%Y.%m.%d-%H%M%S')"
-
       - name: get commit info
         id: commit
         run: |
+          echo "::set-output name=date::$(date --utc --date=@$(git show -s --format=%ct HEAD) +'%Y.%m.%d-%H%M%S')"
           echo "::set-output name=sha::$(git rev-parse HEAD)"
           echo "::set-output name=short_sha::$(git rev-parse --short HEAD)"
           echo "::set-output name=message::$(git log --format=%B -n 1 HEAD)"
 
       - name: create tag
         run: |
-          git tag ${{ steps.date.outputs.date }}
+          git tag ${{ steps.commit.outputs.date }}
           git push origin --tags
 
       - name: create release
@@ -43,8 +40,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ steps.date.outputs.date }}
-          release_name: ${{ steps.date.outputs.date }}
+          tag_name: ${{ steps.commit.outputs.date }}
+          release_name: ${{ steps.commit.outputs.date }}
           body: ${{ steps.commit.outputs.message }}
 
       - name: get image metadata
@@ -64,5 +61,5 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ env.IMAGE }}:latest,${{ env.IMAGE }}:${{ steps.date.outputs.date }},${{ env.IMAGE }}:${{ steps.commit.outputs.sha }},${{ env.IMAGE }}:${{ steps.commit.outputs.short_sha }}
+          tags: ${{ env.IMAGE }}:latest,${{ env.IMAGE }}:${{ steps.commit.outputs.date }},${{ env.IMAGE }}:${{ steps.commit.outputs.sha }},${{ env.IMAGE }}:${{ steps.commit.outputs.short_sha }}
           labels: ${{ steps.meta.outputs.labels }}
