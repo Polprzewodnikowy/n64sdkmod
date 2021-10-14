@@ -28,10 +28,10 @@ jobs:
 
       - name: get commit info
         id: commit
-        shell: bash
         run: |
           echo "::set-output name=sha::$(git rev-parse HEAD)"
           echo "::set-output name=short_sha::$(git rev-parse --short HEAD)"
+          echo "::set-output name=message::$(git log --format=%B -n 1 HEAD)"
 
       - name: create release
         uses: actions/create-release@v1
@@ -40,6 +40,7 @@ jobs:
         with:
           tag_name: ${{ steps.date.outputs.date }}
           release_name: ${{ steps.date.outputs.date }}
+          body: ${{ steps.commit.outputs.message }}
 
       - name: get image metadata
         id: meta
@@ -58,5 +59,5 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ env.IMAGE }}:latest,${{ env.IMAGE }}:${{ steps.date.outputs.date }},${{ env.IMAGE }}:${{ steps.commit.sha }},${{ env.IMAGE }}:${{ steps.commit.short_sha }}
+          tags: ${{ env.IMAGE }}:latest,${{ env.IMAGE }}:${{ steps.date.outputs.date }},${{ env.IMAGE }}:${{ steps.commit.outputs.sha }},${{ env.IMAGE }}:${{ steps.commit.outputs.short_sha }}
           labels: ${{ steps.meta.outputs.labels }}
