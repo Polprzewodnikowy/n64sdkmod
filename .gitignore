@@ -1,0 +1,5 @@
+*.deb
+debs
+web
+!loose-debs/*.deb
+.vscode/
